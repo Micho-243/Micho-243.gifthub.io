@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Christmas Quiz Challenge 3</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f8ff;
+      text-align: center;
+      padding: 20px;
+    }
+    #greeting-container {
+      margin: 50px auto;
+      padding: 30px;
+      background-color: #28a745;
+      color: white;
+      border-radius: 10px;
+      width: 50%;
+    }
+    #startButton {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    #quiz-container {
+      display: none;
+    }
+    #question-box {
+      margin: 20px auto;
+      padding: 20px;
+      border: 2px solid #007bff;
+      border-radius: 10px;
+      background-color: white;
+      width: 60%;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+    #challenge-label {
+      position: absolute;
+      top: -20px;
+      left: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      background-color: white;
+      padding: 5px 10px;
+      color: #007bff;
+      border: 1px solid #007bff;
+      border-radius: 5px;
+    }
+    .question {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .answer {
+      display: block;
+      margin: 10px auto;
+      padding: 10px;
+      background-color: #e0e0e0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 200px;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+    .answer:hover {
+      background-color: #d0d0d0;
+      transform: scale(1.1);
+    }
+    #countdown-container {
+      margin: 20px 0;
+      text-align: center;
+    }
+    #countdown {
+      font-size: 20px;
+      color: red;
+      font-weight: bold;
+    }
+    #progress-bar-container {
+      margin-top: 10px;
+      height: 10px;
+      width: 80%;
+      background-color: #ddd;
+      border-radius: 5px;
+      margin: 0 auto;
+    }
+    #progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #007bff;
+      border-radius: 5px;
+    }
+    #feedback {
+      font-size: 18px;
+      margin-top: 20px;
+    }
+    #final-result {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div id="greeting-container">
+    <h1>Bonjour Marie Reine!</h1>
+    <p>Are you ready for Challenge 3 of the Christmas Quiz?</p>
+    <button id="startButton">Start the Challenge</button>
+  </div>
+
+  <div id="quiz-container">
+    <div id="question-box">
+      <div id="challenge-label">Challenge 3</div>
+      <div id="question-text" class="question"></div>
+      <div id="answers"></div>
+      <div id="countdown-container">
+        <div id="countdown">10</div>
+        <div id="progress-bar-container">
+          <div id="progress-bar"></div>
+        </div>
+      </div>
+    </div>
+    <div id="feedback"></div>
+  </div>
+
+  <script>
+    const questions = [
+      { question: "Which country started the tradition of putting up a Christmas tree?", options: ["USA", "Germany", "France", "England"], answer: "Germany" },
+      { question: "What is the name of the Grinch's dog?", options: ["Max", "Sam", "Rex", "Charlie"], answer: "Max" },
+      { question: "What does the word 'Noel' mean?", options: ["Snow", "Christmas", "Gift", "Joy"], answer: "Christmas" },
+      { question: "What Christmas decoration is made of evergreen branches and hung on doors?", options: ["Stocking", "Wreath", "Garland", "Mistletoe"], answer: "Wreath" },
+      { question: "Which song starts with the lyrics 'Jingle bells, jingle bells, jingle all the way'?", options: ["Deck the Halls", "Silent Night", "Jingle Bells", "Frosty the Snowman"], answer: "Jingle Bells" },
+      { question: "Which of these reindeer has a red nose?", options: ["Comet", "Rudolph", "Dasher", "Blitzen"], answer: "Rudolph" },
+      { question: "In which country is it customary to have a Christmas Eve dinner at midnight?", options: ["Japan", "Poland", "Italy", "Mexico"], answer: "Poland" },
+      { question: "What is Frosty the Snowman's favorite activity?", options: ["Singing", "Dancing", "Flying", "Skating"], answer: "Dancing" },
+      { question: "Who was the first president to decorate the White House Christmas tree?", options: ["Theodore Roosevelt", "Franklin Pierce", "Abraham Lincoln", "Harry Truman"], answer: "Franklin Pierce" },
+      { question: "Which candy is traditionally hung on the Christmas tree?", options: ["Jelly Bean", "Candy Cane", "Chocolate Bar", "Lollipop"], answer: "Candy Cane" }
+    ];
+
+    let currentQuestionIndex = 0;
+    let correctAnswers = 0;
+    let countdownInterval;
+    const totalTime = 10;
+
+    document.getElementById("startButton").addEventListener("click", () => {
+      document.getElementById("greeting-container").style.display = "none";
+      document.getElementById("quiz-container").style.display = "block";
+      loadQuestion();
+    });
+
+    function loadQuestion() {
+      const currentQuestion = questions[currentQuestionIndex];
+      document.getElementById("question-text").textContent = currentQuestion.question;
+
+      const answersContainer = document.getElementById("answers");
+      answersContainer.innerHTML = "";
+
+      const options = [...currentQuestion.options];
+      options.sort(() => Math.random() - 0.5);
+
+      options.forEach(option => {
+        const answerDiv = document.createElement("div");
+        answerDiv.className = "answer";
+        answerDiv.textContent = option;
+        answerDiv.onclick = () => checkAnswer(option);
+        answersContainer.appendChild(answerDiv);
+      });
+
+      startCountdown();
+    }
+
+    function startCountdown() {
+      let timeLeft = totalTime;
+      document.getElementById("countdown").textContent = timeLeft;
+      document.getElementById("progress-bar").style.width = "0%";
+      countdownInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById("countdown").textContent = timeLeft;
+        document.getElementById("progress-bar").style.width = `${((totalTime - timeLeft) / totalTime) * 100}%`;
+        if (timeLeft <= 0) {
+          clearInterval(countdownInterval);
+          checkAnswer(null);
+        }
+      }, 1000);
+    }
+
+    function checkAnswer(selectedAnswer) {
+      clearInterval(countdownInterval);
+      const currentQuestion = questions[currentQuestionIndex];
+      if (selectedAnswer === currentQuestion.answer) {
+        document.getElementById("feedback").textContent = "✔ Correct!";
+        correctAnswers++;
+      } else {
+        document.getElementById("feedback").textContent = `❌ Incorrect! The correct answer was ${currentQuestion.answer}`;
+      }
+      currentQuestionIndex++;
+      setTimeout(() => {
+        document.getElementById("feedback").textContent = "";
+        if (currentQuestionIndex < questions.length) {
+          loadQuestion();
+        } else {
+          showFinalResult();
+        }
+      }, 1000);
+    }
+
+    function showFinalResult() {
+      let resultMessage = `You got ${correctAnswers} out of ${questions.length} correct!`;
+
+      if (correctAnswers === questions.length) {
+        resultMessage += " Congratulations! You unlocked the word: 'Brighten'.";
+      }
+
+      document.getElementById("quiz-container").innerHTML = `
+        <h2>Quiz Completed!</h2>
+        <p>${resultMessage}</p>
+      `;
+    }
+  </script>
+</body>
+</html>
+
